@@ -8,10 +8,7 @@ import { IPerson } from '@src/lib/interfaces/IPerson';
 const getPersonById = async (id: string | string[] | undefined): Promise<IPerson> => {
   if (typeof id === 'string') {
     const res = await fetch(`/api/person/${id}`);
-    if (res.ok) {
-      return res.json();
-    }
-    throw new Error('error fetching user with id');
+    return res.json();
   }
   throw new Error('invalid id'); // need to throw because react-query functions need to have error thrown to know its in error state
 };
@@ -20,9 +17,8 @@ const PersonPage: FC = () => {
   const {
     query: { id },
   } = useRouter();
-
   const { isLoading, isError, error, data } = useQuery<IPerson, Error>(['person', id], () => getPersonById(id), {
-    enabled: !!id, // enabled will stop a query from running, so will only call when id is available (dependent queries)
+    enabled: !!id, // enabled will stop a query from running, so will only call when id is available (dependend queries)
   });
 
   // Cached key would be ['person', ]
