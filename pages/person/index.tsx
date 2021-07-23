@@ -1,10 +1,9 @@
+/* eslint-disable import/prefer-default-export */
 /* eslint-disable import/no-cycle */
 // index.tsx
 import React, { FC, useState } from 'react';
 import Link from 'next/link';
-import { Query, QueryKey, useQueries, useQuery, useQueryClient, UseQueryResult } from 'react-query';
-import person from '@pages/api/person';
-import PersonComponent from '@src/components/PersonComponent';
+import { useQueries, useQuery, useQueryClient, UseQueryResult } from 'react-query';
 import { IPerson } from '@src/lib/interfaces/IPerson';
 import { ITodo } from '@src/lib/interfaces/ITodo';
 
@@ -28,10 +27,13 @@ const fetchTodo = async (): Promise<ITodo> => {
 
 const PersonPage: FC = () => {
   const [enabled, setEnabled] = useState(true);
-  const { isLoading, isError, isSuccess: personSuccess, error, data }: UseQueryResult<IPerson, Error> = useQuery<
-    IPerson,
-    Error
-  >('person', fetchPerson, {
+  const {
+    isLoading,
+    isError,
+    isSuccess: personSuccess,
+    error,
+    data,
+  }: UseQueryResult<IPerson, Error> = useQuery<IPerson, Error>('person', fetchPerson, {
     enabled,
   });
 
@@ -134,15 +136,4 @@ const PersonPage: FC = () => {
   );
 };
 
-export default PersonPage;onMutate: async (_variables: ICreatePersonParams) => {
-      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries('person');
-
-      // Snapshot the previous value
-      const previousPerson: IPerson | undefined = queryClient.getQueryData('person');
-
-      queryClient.setQueryData('person', previousPerson);
-
-      // Return a context object with the snapshotted value
-      return { previousPerson };
-    },
+export default PersonPage;
