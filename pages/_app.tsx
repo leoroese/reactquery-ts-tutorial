@@ -6,7 +6,6 @@ import { FC, useState } from 'react';
 import { AppProps } from 'next/app';
 import { QueryClientProvider, QueryClient } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { Hydrate } from 'react-query/hydration';
 
 const MyApp: FC<AppProps> = ({ Component, pageProps }: AppProps) => {
   const [queryClient] = useState(
@@ -21,10 +20,8 @@ const MyApp: FC<AppProps> = ({ Component, pageProps }: AppProps) => {
   );
   return (
     <QueryClientProvider client={queryClient}>
-      <Hydrate state={pageProps.dehydratedState}>
-        <ReactQueryDevtools initialIsOpen={false} />
-        <Component {...pageProps} />
-      </Hydrate>
+      <ReactQueryDevtools initialIsOpen={false} />
+      <Component {...pageProps} />
     </QueryClientProvider>
   );
 };
