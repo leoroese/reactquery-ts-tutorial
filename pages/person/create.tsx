@@ -54,7 +54,7 @@ interface ICreatePersonParams {
 }
 
 interface IContext {
-  id: string;
+  previousPerson: IPerson | undefined;
 }
 
 const CreatePage: FC = () => {
@@ -72,9 +72,17 @@ const CreatePage: FC = () => {
     IContext | undefined
   >('createPerson', async ({ id, name, age }) => createPerson(id, name, age), {
     // before mutation
-    onMutate: (variables: ICreatePersonParams) => {
-      console.log('mutation variables', variables);
-      return { id: '7' };
+    onMutate: async (_variables: ICreatePersonParams) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries('person');
+
+      // Snapshot the previous value
+      const previousPerson: IPerson | undefined = queryClient.getQueryData('person');
+
+      queryClient.setQueryData('person', previousPerson);
+
+      // Return a context object with the snapshotted value
+      return { person: previousPerson };
     },
     // on success of mutation
     onSuccess: (data: IPerson, _variables: ICreatePersonParams, _context: IContext | undefined) => {
@@ -85,7 +93,8 @@ const CreatePage: FC = () => {
     // if mutation errors
     onError: (error: Error, _variables: ICreatePersonParams, context: IContext | undefined) => {
       console.log('error: ', error.message);
-      return console.log(`rolling back optimistic update with id: ${context?.id}`);
+      queryClient.setQueryData('person', context?.previousPerson);
+      return console.log(`rolling back optimistic update with id: ${context?.previousPerson?.id}`);
     },
     // no matter if error or success run me
     onSettled: (
